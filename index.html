@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemesanan Soal & Rapor - FKPQ Cikampek</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <!-- Memanggil logo.png dari folder yang sama -->
+                <div class="w-14 h-14 bg-white rounded-full p-1 shadow-md flex items-center justify-center overflow-hidden">
+                    <img src="./logo.png" alt="Logo FKPQ" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/100?text=FKPQ';">
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">FKPQ KECAMATAN CIKAMPEK</h1>
+                    <p class="text-emerald-200 text-xs md:text-sm font-medium">Pemesanan Naskah Soal & Rapor Semester Ganjil T.A. 2026/2027</p>
+                </div>
+            </div>
+            
+            <!-- Dynamic Navigation Tabs -->
+            <div class="flex bg-emerald-900/50 p-1.5 rounded-xl border border-emerald-500/30">
+                <button id="tabFormBtn" onclick="switchTab('form')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-emerald-800 shadow">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i>Form Pemesanan
+                </button>
+                <button id="tabDataBtn" onclick="switchTab('data')" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-emerald-100 hover:text-white">
+                    <i class="fa-solid fa-list-check mr-2"></i>Data Pemesanan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
+
+        <!-- Konfigurasi URL API Backend -->
+        <div class="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <span class="p-2 bg-emerald-100 text-emerald-700 rounded-lg"><i class="fa-solid fa-link"></i></span>
+                <div>
+                    <p class="text-xs font-semibold text-emerald-800">Status Endpoint GAS API</p>
+                    <p id="apiUrlStatus" class="text-xs text-slate-600 truncate max-w-xs md:max-w-md">Belum dikonfigurasi (Menggunakan Mode Simulasi)</p>
+                </div>
+            </div>
+            <button onclick="configApiUrl()" class="w-full sm:w-auto px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition">
+                <i class="fa-solid fa-gear mr-1"></i> Set URL Web App GAS
+            </button>
+        </div>
+
+        <!-- TAB 1: FORM PEMESANAN BARU -->
+        <div id="tabForm" class="space-y-6">
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left Column: Identitas & Rapor -->
+                    <div class="space-y-6">
+                        <!-- Identitas Lembaga -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <h2 class="text-base font-bold text-slate-900 border-b pb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-school text-emerald-600"></i> Identitas Pemesan
+                            </h2>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lembaga / TPQ *</label>
+                                <input type="text" id="namaLembaga" required placeholder="Contoh: TPQ Al-Ikhlas" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Penanggung Jawab / Kepala *</label>
+                                <input type="text" id="penanggungJawab" required placeholder="Nama Lengkap" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor WhatsApp *</label>
+                                <input type="tel" id="noWa" required placeholder="08xxxxxxxxxx" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Pemesanan Rapor -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <h2 class="text-base font-bold text-slate-900 border-b pb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-book-bookmark text-emerald-600"></i> Pesanan Rapor
+                            </h2>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border">
+                                    <span class="text-sm font-medium">Rapor TKQ</span>
+                                    <input type="number" id="raporTkq" min="0" value="0" onchange="calculateTotal()" class="w-20 px-2 py-1 border rounded text-center font-bold text-emerald-700">
+                                </div>
+                                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border">
+                                    <span class="text-sm font-medium">Rapor PAUDQ</span>
+                                    <input type="number" id="raporPaudq" min="0" value="0" onchange="calculateTotal()" class="w-20 px-2 py-1 border rounded text-center font-bold text-emerald-700">
+                                </div>
+                                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border">
+                                    <span class="text-sm font-medium">Rapor TPQ</span>
+                                    <input type="number" id="raporTpq" min="0" value="0" onchange="calculateTotal()" class="w-20 px-2 py-1 border rounded text-center font-bold text-emerald-700">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle & Right Column: Soal & Summary -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Pemesanan Soal -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                            <h2 class="text-base font-bold text-slate-900 border-b pb-3 flex items-center justify-between">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-file-pen text-emerald-600"></i> Pesanan Naskah Soal</span>
+                                <span class="text-xs text-slate-500 font-normal">Isi jumlah eksemplar per tingkat</span>
+                            </h2>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">TKQ A</label>
+                                    <input type="number" id="tkqA" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">TKQ B</label>
+                                    <input type="number" id="tkqB" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">PAUDQ A</label>
+                                    <input type="number" id="paudqA" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">PAUDQ B</label>
+                                    <input type="number" id="paudqB" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">TPQ 1</label>
+                                    <input type="number" id="tpq1" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-2">TPQ 2</label>
+                                    <input type="number" id="tpq2" min="0" value="0" onchange="calculateTotal()" class="w-full px-3 py-2 border rounded-lg text-center font-bold text-emerald-800 text-lg">
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                                <textarea id="catatan" rows="2" placeholder="Catatan khusus untuk pengurus..." class="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Rekap Ringkasan & Button Submit -->
+                        <div class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="grid grid-cols-2 gap-6 w-full md:w-auto">
+                                <div>
+                                    <p class="text-xs text-emerald-300 uppercase font-bold tracking-wider">Total Naskah Soal</p>
+                                    <p class="text-3xl font-black text-amber-400" id="totalSoalDisplay">0 <span class="text-sm font-normal text-white">eksemplar</span></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-emerald-300 uppercase font-bold tracking-wider">Total Buku Rapor</p>
+                                    <p class="text-3xl font-black text-amber-400" id="totalRaporDisplay">0 <span class="text-sm font-normal text-white">buku</span></p>
+                                </div>
+                            </div>
+                            <button type="submit" id="submitBtn" class="w-full md:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-emerald-950 font-extrabold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Kirim Pesanan
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB 2: DATA PEMESANAN YANG SUDAH MASUK -->
+        <div id="tabData" class="hidden space-y-6">
+            <!-- Stat Cards Header -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Total Lembaga Memesan</p>
+                        <h3 id="statTotalLembaga" class="text-2xl font-black text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-copy"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Total Naskah Soal Dipesan</p>
+                        <h3 id="statTotalSoal" class="text-2xl font-black text-slate-800">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Total Rapor Dipesan</p>
+                        <h3 id="statTotalRapor" class="text-2xl font-black text-slate-800">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Table Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b flex flex-col md:flex-row items-center justify-between gap-4">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-emerald-600"></i> Daftar Pesanan Masuk
+                    </h2>
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <div class="relative w-full md:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="searchInput" onkeyup="filterOrders()" placeholder="Cari nama lembaga..." class="w-full pl-9 pr-3 py-2 border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <button onclick="fetchOrders()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Responsive Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b">
+                            <tr>
+                                <th class="p-3.5">ID / Tanggal</th>
+                                <th class="p-3.5">Lembaga & PJ</th>
+                                <th class="p-3.5 text-center">Detail Soal</th>
+                                <th class="p-3.5 text-center">Detail Rapor</th>
+                                <th class="p-3.5 text-center">Status</th>
+                                <th class="p-3.5 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="divide-y divide-slate-100">
+                            <!-- Rows generated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Detail / Struk Nota -->
+    <div id="receiptModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100">
+            <div class="bg-emerald-800 text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-receipt"></i> Bukti Pemesanan</h3>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white text-lg">&times;</button>
+            </div>
+            <div id="modalContent" class="p-6 space-y-4 text-xs">
+                <!-- Content generated via JavaScript -->
+            </div>
+            <div class="bg-slate-50 p-4 border-t flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg">Tutup</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i> Cetak Nota
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let scriptUrl = localStorage.getItem('fkpq_gas_url') || '';
+        let globalOrders = [];
+
+        // Data Simulasi jika API belum diisi
+        const mockOrders = [
+            { id: 'FKPQ-883921', timestamp: '2026-10-31 09:15', namaLembaga: 'TPQ Al-Hilal', penanggungJawab: 'Ust. Ahmad', noWa: '08123456789', tkqA: 10, tkqB: 12, paudqA: 0, paudqB: 0, tpq1: 15, tpq2: 15, raporTkq: 22, raporPaudq: 0, raporTpq: 30, totalSoal: 52, totalRapor: 52, status: 'Pending' },
+            { id: 'FKPQ-771204', timestamp: '2026-10-30 14:20', namaLembaga: 'TKQ Nurul Huda', penanggungJawab: 'Ustdh. Siti', noWa: '08987654321', tkqA: 20, tkqB: 20, paudqA: 15, paudqB: 15, tpq1: 0, tpq2: 0, raporTkq: 40, raporPaudq: 30, raporTpq: 0, totalSoal: 70, totalRapor: 70, status: 'Lunas' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateApiStatusDisplay();
+            fetchOrders();
+        });
+
+        function configApiUrl() {
+            const url = prompt("https://script.google.com/macros/s/AKfycbymCWerjRPP8mTXhtSe9p7_AB9iYgLqDg3tMa4VbiQ3icOqJu7qo7t4OcMgkSVhIhquLQ/exec", scriptUrl);
+            if (url !== null) {
+                scriptUrl = url.trim();
+                localStorage.setItem('fkpq_gas_url', scriptUrl);
+                updateApiStatusDisplay();
+                fetchOrders();
+            }
+        }
+
+        function updateApiStatusDisplay() {
+            const statusEl = document.getElementById('apiUrlStatus');
+            if (scriptUrl) {
+                statusEl.textContent = scriptUrl;
+                statusEl.classList.remove('text-amber-600');
+                statusEl.classList.add('text-emerald-700');
+            } else {
+                statusEl.textContent = 'Belum dikonfigurasi (Menggunakan Mode Simulasi)';
+                statusEl.classList.add('text-amber-600');
+            }
+        }
+
+        function switchTab(tab) {
+            const formTab = document.getElementById('tabForm');
+            const dataTab = document.getElementById('tabData');
+            const formBtn = document.getElementById('tabFormBtn');
+            const dataBtn = document.getElementById('tabDataBtn');
+
+            if (tab === 'form') {
+                formTab.classList.remove('hidden');
+                dataTab.classList.add('hidden');
+                formBtn.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-emerald-800 shadow';
+                dataBtn.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-emerald-100 hover:text-white';
+            } else {
+                formTab.classList.add('hidden');
+                dataTab.classList.remove('hidden');
+                dataBtn.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-white text-emerald-800 shadow';
+                formBtn.className = 'px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-emerald-100 hover:text-white';
+                fetchOrders();
+            }
+        }
+
+        function calculateTotal() {
+            const tkqA = parseInt(document.getElementById('tkqA').value) || 0;
+            const tkqB = parseInt(document.getElementById('tkqB').value) || 0;
+            const paudqA = parseInt(document.getElementById('paudqA').value) || 0;
+            const paudqB = parseInt(document.getElementById('paudqB').value) || 0;
+            const tpq1 = parseInt(document.getElementById('tpq1').value) || 0;
+            const tpq2 = parseInt(document.getElementById('tpq2').value) || 0;
+
+            const raporTkq = parseInt(document.getElementById('raporTkq').value) || 0;
+            const raporPaudq = parseInt(document.getElementById('raporPaudq').value) || 0;
+            const raporTpq = parseInt(document.getElementById('raporTpq').value) || 0;
+
+            const totalSoal = tkqA + tkqB + paudqA + paudqB + tpq1 + tpq2;
+            const totalRapor = raporTkq + raporPaudq + raporTpq;
+
+            document.getElementById('totalSoalDisplay').innerHTML = `${totalSoal} <span class="text-sm font-normal text-white">eksemplar</span>`;
+            document.getElementById('totalRaporDisplay').innerHTML = `${totalRapor} <span class="text-sm font-normal text-white">buku</span>`;
+
+            return { totalSoal, totalRapor };
+        }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const totals = calculateTotal();
+
+            const payload = {
+                namaLembaga: document.getElementById('namaLembaga').value,
+                penanggungJawab: document.getElementById('penanggungJawab').value,
+                noWa: document.getElementById('noWa').value,
+                tkqA: parseInt(document.getElementById('tkqA').value) || 0,
+                tkqB: parseInt(document.getElementById('tkqB').value) || 0,
+                paudqA: parseInt(document.getElementById('paudqA').value) || 0,
+                paudqB: parseInt(document.getElementById('paudqB').value) || 0,
+                tpq1: parseInt(document.getElementById('tpq1').value) || 0,
+                tpq2: parseInt(document.getElementById('tpq2').value) || 0,
+                raporTkq: parseInt(document.getElementById('raporTkq').value) || 0,
+                raporPaudq: parseInt(document.getElementById('raporPaudq').value) || 0,
+                raporTpq: parseInt(document.getElementById('raporTpq').value) || 0,
+                totalSoal: totals.totalSoal,
+                totalRapor: totals.totalRapor,
+                catatan: document.getElementById('catatan').value
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
+
+            if (!scriptUrl) {
+                // Mode Simulasi Offline
+                setTimeout(() => {
+                    const simOrder = { id: 'FKPQ-' + Date.now().toString().slice(-6), timestamp: new Date().toLocaleString('id-ID'), ...payload, status: 'Pending' };
+                    globalOrders.unshift(simOrder);
+                    showReceipt(simOrder);
+                    document.getElementById('orderForm').reset();
+                    calculateTotal();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Kirim Pesanan`;
+                }, 1000);
+                return;
+            }
+
+            try {
+                const res = await fetch(scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Pemesanan berhasil disimpan!');
+                    showReceipt({ id: result.id, timestamp: new Date().toLocaleString('id-ID'), ...payload, status: 'Pending' });
+                    document.getElementById('orderForm').reset();
+                    calculateTotal();
+                } else {
+                    alert('Gagal menyimpan: ' + result.message);
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan koneksi ke GAS. Mengalihkan ke mode lokal.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Kirim Pesanan`;
+            }
+        }
+
+        async function fetchOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Memuat data...</td></tr>`;
+
+            if (!scriptUrl) {
+                globalOrders = mockOrders;
+                renderOrders(globalOrders);
+                return;
+            }
+
+            try {
+                const res = await fetch(scriptUrl);
+                const json = await res.json();
+                if (json.success) {
+                    globalOrders = json.data;
+                    renderOrders(globalOrders);
+                }
+            } catch (err) {
+                globalOrders = mockOrders;
+                renderOrders(globalOrders);
+            }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            let totalSoalAll = 0;
+            let totalRaporAll = 0;
+
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data pemesanan.</td></tr>`;
+                return;
+            }
+
+            orders.forEach(item => {
+                totalSoalAll += Number(item.totalSoal || 0);
+                totalRaporAll += Number(item.totalRapor || 0);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-medium">
+                        <span class="font-bold text-emerald-800">${item.id || '-'}</span>
+                        <div class="text-[10px] text-slate-400">${item.timestamp || '-'}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-800">${item.namaLembaga}</div>
+                        <div class="text-[11px] text-slate-500">${item.penanggungJawab} (${item.noWa})</div>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <span class="font-bold text-emerald-700">${item.totalSoal}</span>
+                        <div class="text-[10px] text-slate-400">TKQ:${(Number(item.tkqA)+Number(item.tkqB))} | PAUDQ:${(Number(item.paudqA)+Number(item.paudqB))} | TPQ:${(Number(item.tpq1)+Number(item.tpq2))}</div>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <span class="font-bold text-teal-700">${item.totalRapor}</span>
+                        <div class="text-[10px] text-slate-400">TKQ:${item.raporTkq} | PAUDQ:${item.raporPaudq} | TPQ:${item.raporTpq}</div>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${item.status === 'Lunas' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${item.status || 'Pending'}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="showReceiptById('${item.id}')" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded font-semibold text-[11px]">
+                            <i class="fa-solid fa-receipt mr-1"></i> Struk
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('statTotalLembaga').textContent = orders.length;
+            document.getElementById('statTotalSoal').textContent = totalSoalAll;
+            document.getElementById('statTotalRapor').textContent = totalRaporAll;
+        }
+
+        function filterOrders() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = globalOrders.filter(o => 
+                (o.namaLembaga && o.namaLembaga.toLowerCase().includes(query)) ||
+                (o.penanggungJawab && o.penanggungJawab.toLowerCase().includes(query))
+            );
+            renderOrders(filtered);
+        }
+
+        function showReceiptById(id) {
+            const item = globalOrders.find(o => o.id === id);
+            if (item) showReceipt(item);
+        }
+
+        function showReceipt(item) {
+            const modal = document.getElementById('receiptModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <div class="text-center border-b pb-3">
+                    <img src="./logo.png" class="w-12 h-12 mx-auto mb-1 object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/100?text=FKPQ';">
+                    <h4 class="font-bold text-slate-800 text-sm">FKPQ KECAMATAN CIKAMPEK</h4>
+                    <p class="text-[10px] text-slate-500">Bukti Pemesanan Soal & Rapor Ganjil 2026/2027</p>
+                    <div class="inline-block mt-2 px-2 py-0.5 bg-slate-100 rounded text-[10px] font-mono font-bold text-slate-700">ID: ${item.id}</div>
+                </div>
+
+                <div class="space-y-1 text-slate-600 border-b pb-3">
+                    <div class="flex justify-between"><span>Lembaga:</span> <strong class="text-slate-800">${item.namaLembaga}</strong></div>
+                    <div class="flex justify-between"><span>PJ / Pemesan:</span> <span>${item.penanggungJawab}</span></div>
+                    <div class="flex justify-between"><span>No. WA:</span> <span>${item.noWa}</span></div>
+                    <div class="flex justify-between"><span>Waktu:</span> <span>${item.timestamp}</span></div>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="font-bold text-slate-700">Rincian Naskah Soal:</p>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 bg-slate-50 p-2 rounded border">
+                        <div>TKQ A: <b>${item.tkqA || 0}</b></div>
+                        <div>TKQ B: <b>${item.tkqB || 0}</b></div>
+                        <div>PAUDQ A: <b>${item.paudqA || 0}</b></div>
+                        <div>PAUDQ B: <b>${item.paudqB || 0}</b></div>
+                        <div>TPQ 1: <b>${item.tpq1 || 0}</b></div>
+                        <div>TPQ 2: <b>${item.tpq2 || 0}</b></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="font-bold text-slate-700">Rincian Buku Rapor:</p>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-50 p-2 rounded border text-center">
+                        <div>TKQ<br><b>${item.raporTkq || 0}</b></div>
+                        <div>PAUDQ<br><b>${item.raporPaudq || 0}</b></div>
+                        <div>TPQ<br><b>${item.raporTpq || 0}</b></div>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t flex justify-between items-center text-sm">
+                    <span class="font-bold text-slate-700">Total Soal & Rapor:</span>
+                    <span class="font-black text-emerald-700 text-base">${Number(item.totalSoal || 0) + Number(item.totalRapor || 0)} Pcs</span>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
